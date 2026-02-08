@@ -1,3 +1,9 @@
+---
+name: assertion-utilities
+description: >
+  AssertUtils and ExpectUtils patterns for centralized test validation in Playwright. Use when implementing reusable assertions, soft assertions, or building a consistent validation layer across your test suite.
+---
+
 # Assertion Utilities Skill
 
 A comprehensive guide to implementing centralized assertion utilities (AssertUtils & ExpectUtils) in Playwright for consistent, reusable, and maintainable test validation.

@@ -1,3 +1,9 @@
+---
+name: accessibility-testing
+description: >
+  Accessibility (a11y) testing patterns with Playwright and axe-core. Use when adding WCAG 2.1 compliance checks, keyboard navigation testing, screen reader compatibility, or color contrast validation to your test suite.
+---
+
 # Accessibility Testing Skill
 
 Comprehensive guide for integrating accessibility (a11y) testing into your Playwright test automation.

@@ -1,3 +1,9 @@
+---
+name: code-organization
+description: >
+  Best practices for organizing Playwright test code by business domain. Use when setting up new projects, reorganizing test structure, establishing naming conventions, or deciding folder layout for page objects, utilities, and fixtures.
+---
+
 # Code Organization Skill
 
 Best practices for organizing test automation code in Playwright projects.

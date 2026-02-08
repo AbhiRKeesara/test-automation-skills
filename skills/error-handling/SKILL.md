@@ -1,3 +1,9 @@
+---
+name: error-handling
+description: >
+  Error handling patterns for Playwright tests including network failures, timeouts, and retries. Use when testing app error states, implementing retry logic, handling flaky elements, configuring timeouts, or adding graceful degradation tests.
+---
+
 # Error Handling Skill
 
 Patterns and strategies for handling errors gracefully in Playwright tests — network failures, timeouts, flaky elements, and retry logic.

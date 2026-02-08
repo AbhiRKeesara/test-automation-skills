@@ -1,3 +1,9 @@
+---
+name: visual-regression-testing
+description: >
+  Screenshot comparison patterns for catching unintended UI changes with Playwright. Use when setting up visual regression tests, configuring screenshot thresholds, handling dynamic content, or integrating visual checks into CI/CD pipelines.
+---
+
 # Visual Regression Testing Skill
 
 Best practices for visual regression testing with Playwright to catch unintended UI changes.
