@@ -123,7 +123,7 @@ cp -r path/to/test-automation-skills/skills/* ~/.roo/skills/
 cp -r path/to/test-automation-skills/skills/* ~/.roo/skills-code/
 ```
 
-> **Note:** Roo requires YAML frontmatter (`name` and `description`) in SKILL.md files. The skills in this repo are compatible — Roo reads the first heading and content as the description if frontmatter is absent.
+> **Note:** All skills in this repo include YAML frontmatter (`name` and `description`) which Roo Code requires for auto-discovery.
 
 **Verify it works** — type this in Roo Code chat:
 ```
@@ -231,6 +231,37 @@ cp configs/.prettierrc your-project/
 cp configs/playwright.config.ts your-project/
 ```
 
+### 4. Set Up AI Agent Hooks (Optional)
+
+Auto-validate test quality every time an AI agent edits a file. See [hooks/HOOKS-SETUP.md](./hooks/HOOKS-SETUP.md) for full setup instructions.
+
+```bash
+chmod +x hooks/lint-e2e.sh hooks/validate-test.sh
+```
+
+| Hook | What It Does | Supported By |
+|------|-------------|-------------|
+| `lint-e2e.sh` | Runs ESLint after every file edit | Claude Code, Cline, Kiro |
+| `validate-test.sh` | Runs test 5x to catch flakiness | All tools (manual trigger) |
+
+### 5. Add AGENTS.md to Your Project (Optional)
+
+Copy the [AGENTS.md template](./templates/AGENTS.md.template) to your project root. It tells AI agents about your project conventions, folder structure, and coding standards — like a README specifically for AI tools.
+
+```bash
+cp templates/AGENTS.md.template your-project/AGENTS.md
+```
+
+## AI Tool Compatibility
+
+| Feature | Kiro IDE | Claude Code | Roo Code | Cline | Amazon Q |
+|---------|----------|-------------|----------|-------|----------|
+| SKILL.md auto-discovery | ✅ | ✅ | ✅ | ❌ | ❌ |
+| YAML frontmatter | ✅ Required | ✅ Supported | ✅ Required | N/A | N/A |
+| PostToolUse hooks | ✅ | ✅ | ❌ | ✅ | ❌ |
+| AGENTS.md / steering | Steering files | ✅ AGENTS.md | .roo/rules/ | .clinerules/ | Manual |
+| Self-validation scripts | ✅ | ✅ | ✅ | ✅ | ✅ |
+
 ## Documentation Structure
 
 ```
@@ -256,7 +287,12 @@ test-automation-skills/
 ├── templates/ (copy-paste starters)
 │   ├── prompt-templates/
 │   ├── test-templates/
-│   └── migration-tracker/
+│   ├── migration-tracker/
+│   └── AGENTS.md.template
+├── hooks/ (auto-validation scripts)
+│   ├── lint-e2e.sh
+│   ├── validate-test.sh
+│   └── HOOKS-SETUP.md
 ├── configs/ (ESLint, Prettier, etc.)
 ├── docs/diagrams/ (architecture diagrams)
 └── examples/ (good vs bad code)
