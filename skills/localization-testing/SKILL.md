@@ -1,3 +1,9 @@
+---
+name: localization-testing
+description: >
+  Internationalization (i18n) and localization (l10n) testing with Playwright. Use when testing multi-language apps, validating date/number/currency formats across locales, testing RTL layouts, pluralization rules, or translation file completeness.
+---
+
 # Localization Testing Skill
 
 Guide for testing internationalization (i18n) and localization (l10n) in Playwright.

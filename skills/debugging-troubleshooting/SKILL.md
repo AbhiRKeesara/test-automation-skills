@@ -1,3 +1,9 @@
+---
+name: debugging-troubleshooting
+description: >
+  Debugging and troubleshooting techniques for Playwright tests. Use when debugging flaky or failing tests using Playwright Inspector, trace viewer, video analysis, console/network debugging, or systematic troubleshooting.
+---
+
 # Debugging & Troubleshooting Skill
 
 Comprehensive guide to debugging Playwright tests — using Playwright Inspector, debug mode, trace viewer, video analysis, and systematic troubleshooting techniques.
@@ -670,6 +676,50 @@ npx playwright codegen https://your-app.com
    - [ ] Add a descriptive error message
    - [ ] Verify the fix works in CI
    - [ ] Remove any `test.only`, `page.pause()`, or `console.log`
+
+### Self-Validation: Verify Tests Aren't Flaky
+
+Before considering a test complete, run it multiple times to confirm stability:
+
+```bash
+# Run a specific test 5 times to check for flakiness
+npx playwright test -g "Should display product details" --repeat-each=5 --reporter=line
+
+# Run a specific file 5 times
+npx playwright test tests/checkout/cart.spec.ts --repeat-each=5 --reporter=line
+
+# Use the provided hook script for convenience
+./hooks/validate-test.sh "Should display product details"
+./hooks/validate-test.sh "tests/checkout/cart.spec.ts"
+```
+
+**Why 5 times?**
+- A test that passes once might be flaky
+- Running 5 times catches most intermittent failures
+- If it passes 5/5, you can be reasonably confident it's stable
+- If it fails even once, investigate before committing
+
+```typescript
+// ✅ Good - Test is deterministic and passes every time
+test('Should display product details', async ({ page }) => {
+  // Set up via API (not dependent on UI state)
+  const product = await createTestProduct(page, { name: 'Laptop' });
+
+  await page.goto(`/products/${product.id}`);
+
+  // Wait for specific API response, not arbitrary timeout
+  await page.waitForResponse('**/api/products/*');
+
+  await expect(page.getByRole('heading', { name: 'Laptop' })).toBeVisible();
+});
+
+// ❌ Bad - Test has timing issues that cause flakiness
+test('display products', async ({ page }) => {
+  await page.goto('/products');
+  await page.waitForTimeout(2000); // Flaky!
+  await expect(page.getByText('Laptop')).toBeVisible();
+});
+```
 
 ### Quick Reference Commands
 

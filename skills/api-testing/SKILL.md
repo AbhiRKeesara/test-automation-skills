@@ -1,3 +1,9 @@
+---
+name: api-testing
+description: >
+  REST API testing patterns using Playwright built-in request context. Use when testing backend APIs, setting up test data via API calls, validating request/response schemas, handling authentication, or mocking API responses for isolated UI testing.
+---
+
 # API Testing Skill
 
 Best practices for API testing with Playwright's built-in request context.

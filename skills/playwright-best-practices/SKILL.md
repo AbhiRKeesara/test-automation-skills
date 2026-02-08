@@ -1,3 +1,9 @@
+---
+name: playwright-best-practices
+description: >
+  Core patterns for writing maintainable, reliable Playwright tests with TypeScript. Use when writing new tests, refactoring existing ones, or reviewing test quality. Covers test structure, selectors, waits, assertions, page objects, fixtures, and common anti-patterns.
+---
+
 # Playwright Best Practices Skill
 
 This skill contains comprehensive best practices for writing maintainable, reliable Playwright tests with TypeScript.
@@ -595,9 +601,47 @@ Before committing a test, verify:
 
 ---
 
+## Pre-Test Completion Checklist
+
+Before considering a test done, verify all of these (inspired by [agentskills.io](https://agentskills.io)):
+
+### Before Writing
+- [ ] Checked if page objects already exist for this flow
+- [ ] Reviewed actual source code (translation keys, component structure)
+- [ ] Searched for similar existing tests to avoid duplication
+- [ ] Identified correct folder location based on business domain
+
+### Test Structure
+- [ ] Uses Given/When/Then (Gherkin) or Arrange/Act/Assert structure
+- [ ] Test name starts with "should" and describes expected behavior
+- [ ] Organized in descriptive `describe` blocks
+- [ ] Each test is independent and parallelizable
+
+### Selectors & Interactions
+- [ ] Uses accessibility-first selectors (getByRole > getByLabel > getByTestId)
+- [ ] No CSS class selectors or XPath
+- [ ] No `waitForTimeout` or `networkidle`
+- [ ] API responses awaited with `page.waitForResponse` where needed
+
+### Assertions & Data
+- [ ] Meaningful assertions with custom error messages
+- [ ] Test state set up via API calls (not UI interactions)
+- [ ] All text references use actual translation keys (not hardcoded)
+- [ ] Cleanup in `afterEach` (with try-catch to prevent test failure)
+
+### Validation
+- [ ] ESLint passes: `npx eslint <test-file>`
+- [ ] Test runs in isolation: `npx playwright test <file> --repeat-each=5`
+- [ ] No `test.only`, `page.pause()`, or `console.log` left in code
+- [ ] Passes on both headed and headless modes
+
+---
+
 ## Related Resources
 
 - [Selector Strategies Skill](../selector-strategies/SKILL.md)
 - [Code Organization Skill](../code-organization/SKILL.md)
+- [Error Handling Skill](../error-handling/SKILL.md)
+- [Debugging & Troubleshooting Skill](../debugging-troubleshooting/SKILL.md)
 - [Migration Patterns Skill](../migration-patterns/SKILL.md)
 - [Official Playwright Docs](https://playwright.dev/docs/best-practices)

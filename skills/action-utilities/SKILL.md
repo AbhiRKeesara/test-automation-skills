@@ -1,3 +1,9 @@
+---
+name: action-utilities
+description: >
+  UIActions pattern for centralized Playwright interactions. Use when implementing clean page object interactions, creating reusable action classes for buttons, inputs, dropdowns, checkboxes, or building a centralized interaction gateway.
+---
+
 # Action Utilities Skill
 
 A comprehensive guide to implementing centralized action utilities (UIActions pattern) in Playwright for cleaner, more maintainable test automation.

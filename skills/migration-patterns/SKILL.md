@@ -1,3 +1,9 @@
+---
+name: migration-patterns
+description: >
+  Framework migration guide for moving from Puppeteer, Selenium, or Cypress to Playwright. Use when planning or executing incremental test migration, checking code reusability, or organizing migrated tests by business domain.
+---
+
 # Migration Patterns Skill
 
 Guide for migrating test automation frameworks to Playwright with TypeScript, with special focus on **incremental migration** and **code reusability**.

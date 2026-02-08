@@ -1,3 +1,9 @@
+---
+name: page-object-model
+description: >
+  Complete POM design patterns for Playwright test automation. Use when building maintainable test architecture, creating page objects, base pages, component objects, page factories, or flow objects for multi-page journeys.
+---
+
 # Page Object Model (POM) Skill
 
 A comprehensive guide to implementing the Page Object Model pattern in Playwright for maintainable, scalable test automation.

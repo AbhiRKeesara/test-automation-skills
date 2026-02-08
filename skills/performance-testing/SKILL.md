@@ -1,3 +1,9 @@
+---
+name: performance-testing
+description: >
+  Web Vitals and load time testing patterns with Playwright. Use when measuring Core Web Vitals (LCP, FID, CLS), setting performance budgets, analyzing network performance, or profiling resource loading times.
+---
+
 # Performance Testing Skill
 
 Best practices for performance testing with Playwright to ensure your application meets performance requirements.

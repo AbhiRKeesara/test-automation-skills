@@ -1,3 +1,9 @@
+---
+name: selector-strategies
+description: >
+  Resilient selector patterns for Playwright using accessibility-first approach. Use when finding elements, improving test stability, or replacing brittle CSS/XPath selectors. Covers getByRole, getByLabel, getByPlaceholder, getByText, getByTestId priority hierarchy.
+---
+
 # Selector Strategies Skill
 
 Comprehensive guide to writing resilient, accessible selectors for Playwright tests. Better than relying on MCP servers!
