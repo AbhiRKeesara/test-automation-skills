@@ -1,0 +1,89 @@
+# AGENTS.md Template
+
+> Copy this file to your project root as `AGENTS.md` (for Claude Code) or adapt for your AI tool.
+> This serves as "a README for AI agents" — it tells AI assistants about your project conventions.
+
+---
+
+```markdown
+# AGENTS.md
+
+## Project Overview
+
+This is a [describe your application] built with [tech stack].
+E2E tests use Playwright + TypeScript.
+
+## Test Conventions
+
+### Structure
+- Tests are organized by **business domain** (e.g., `tests/auth/`, `tests/checkout/`)
+- Each domain has its own `page-objects/` directory
+- Shared utilities live in `tests/shared/`
+
+### Naming
+- Test files: `kebab-case.spec.ts` (e.g., `prescription-refill.spec.ts`)
+- Page objects: `PascalCase.ts` (e.g., `CheckoutPage.ts`)
+- Utilities: `kebab-case.ts` (e.g., `test-data-helpers.ts`)
+
+### Test Writing Rules
+- Use accessibility-first selectors (getByRole > getByLabel > getByTestId)
+- Never use `waitForTimeout` or `networkidle`
+- Follow Given/When/Then (Gherkin) or Arrange/Act/Assert structure
+- Set up test state via API calls, not UI interactions
+- Each test must be parallelizable (no shared state between tests)
+- Include meaningful assertion error messages
+
+### Before Writing a Test
+1. Check if page objects already exist for the flow
+2. Check translation files for correct text/labels
+3. Check component source for actual element structure
+4. Look for existing similar tests to avoid duplication
+
+### Locator Priority
+1. `page.getByRole()` — always prefer this
+2. `page.getByLabel()` — for form elements
+3. `page.getByPlaceholder()` — if no label exists
+4. `page.getByText()` — for visible text content
+5. `page.getByTestId()` — last resort, stable but not accessibility-based
+
+### After Writing a Test
+1. Run `npx eslint <test-file>` to check lint
+2. Run `npx playwright test -g "<test title>" --repeat-each=5` to verify not flaky
+3. Ensure test passes in isolation (no dependency on other tests)
+
+## Key Files
+- `playwright.config.ts` — test configuration
+- `tests/shared/fixtures/` — shared test fixtures
+- `tests/shared/utils/` — helper utilities
+- `tests/shared/page-objects/BasePage.ts` — base page object class
+
+## Monorepo Structure (if applicable)
+```
+├── AGENTS.md              ← General project instructions (this file)
+├── frontend/
+│   └── AGENTS.md          ← Frontend-specific conventions
+├── backend/
+│   └── AGENTS.md          ← Backend API conventions
+└── packages/e2e-tests/
+    └── AGENTS.md          ← E2E test-specific instructions
+```
+```
+
+---
+
+## How to Use This Template
+
+### Claude Code
+Copy as `AGENTS.md` to your project root. Claude Code reads it automatically.
+
+### Kiro IDE
+Use as a steering file in `.kiro/steering/` or reference in skill descriptions.
+
+### Cline
+Adapt the content into `.clinerules/project-conventions.md`.
+
+### Roo Code
+Place in `.roo/rules/` or include in your custom instructions.
+
+### Amazon Q CLI
+Reference in your prompts: "Follow the conventions in AGENTS.md"
