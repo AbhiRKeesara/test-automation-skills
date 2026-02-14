@@ -204,6 +204,9 @@ Using the playwright-best-practices skill, create a test for login functionality
 | [Performance Testing](./skills/performance-testing/) | Web Vitals & load time testing | Measuring and asserting performance |
 | [Error Handling](./skills/error-handling/) | Network errors, retries, graceful degradation | Handling failures in tests and testing app error states |
 | [Debugging & Troubleshooting](./skills/debugging-troubleshooting/) | Inspector, traces, video analysis | Debugging flaky or failing tests |
+| [Test Fixtures & Setup](./skills/test-fixtures-setup/) | Custom fixtures, test.extend(), setup projects | Creating reusable test setup/teardown, data factories |
+| [Authentication Testing](./skills/authentication-testing/) | Storage state, 2FA/TOTP, multi-role auth | Login flows, session management, OAuth testing |
+| [CI/CD Integration](./skills/ci-cd-integration/) | GitHub Actions, sharding, test filtering | Running tests in pipelines, deploy previews |
 
 ## Setup
 
@@ -283,7 +286,10 @@ test-automation-skills/
 │   ├── visual-regression-testing/
 │   ├── performance-testing/
 │   ├── error-handling/
-│   └── debugging-troubleshooting/
+│   ├── debugging-troubleshooting/
+│   ├── test-fixtures-setup/
+│   ├── authentication-testing/
+│   └── ci-cd-integration/
 ├── templates/ (copy-paste starters)
 │   ├── prompt-templates/
 │   ├── test-templates/
