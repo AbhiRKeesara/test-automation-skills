@@ -123,7 +123,7 @@ cp -r path/to/test-automation-skills/skills/* ~/.roo/skills/
 cp -r path/to/test-automation-skills/skills/* ~/.roo/skills-code/
 ```
 
-> **Note:** All skills in this repo include YAML frontmatter (`name` and `description`) which Roo Code requires for auto-discovery.
+> **Note:** Roo requires YAML frontmatter (`name` and `description`) in SKILL.md files. The skills in this repo are compatible — Roo reads the first heading and content as the description if frontmatter is absent.
 
 **Verify it works** — type this in Roo Code chat:
 ```
@@ -192,9 +192,9 @@ Using the playwright-best-practices skill, create a test for login functionality
 |-------|-------------|----------|
 | [Playwright Best Practices](./skills/playwright-best-practices/) | Core patterns for Playwright + TypeScript | Writing new tests, refactoring existing ones |
 | [Page Object Model](./skills/page-object-model/) | Complete POM design patterns | Building maintainable test architecture |
-| [Action Utilities](./skills/action-utilities/) | UIActions - Centralized interaction gateway | Implementing clean Page Object interactions |
+| [Action Utilities](./skills/action-utilities/) | UIActions - Centralized interaction gateway with advanced wait patterns | Implementing clean Page Object interactions, custom waits |
 | [Assertion Utilities](./skills/assertion-utilities/) | AssertUtils & ExpectUtils patterns | Centralized validations, soft assertions |
-| [Selector Strategies](./skills/selector-strategies/) | Resilient selector patterns | Finding elements, improving test stability |
+| [Selector Strategies](./skills/selector-strategies/) | Resilient selector patterns with advanced filtering (hasText, has, and, or) | Finding elements, filtering lists, improving test stability |
 | [Migration Patterns](./skills/migration-patterns/) | Framework migration guide | Moving from Puppeteer/Selenium/Cypress to Playwright |
 | [Accessibility Testing](./skills/accessibility-testing/) | A11y testing patterns | Adding accessibility checks |
 | [Localization Testing](./skills/localization-testing/) | i18n/l10n testing approaches | Testing multi-language apps |
@@ -204,9 +204,9 @@ Using the playwright-best-practices skill, create a test for login functionality
 | [Performance Testing](./skills/performance-testing/) | Web Vitals & load time testing | Measuring and asserting performance |
 | [Error Handling](./skills/error-handling/) | Network errors, retries, graceful degradation | Handling failures in tests and testing app error states |
 | [Debugging & Troubleshooting](./skills/debugging-troubleshooting/) | Inspector, traces, video analysis | Debugging flaky or failing tests |
-| [Test Fixtures & Setup](./skills/test-fixtures-setup/) | Custom fixtures, test.extend(), setup projects | Creating reusable test setup/teardown, data factories |
-| [Authentication Testing](./skills/authentication-testing/) | Storage state, 2FA/TOTP, multi-role auth | Login flows, session management, OAuth testing |
-| [CI/CD Integration](./skills/ci-cd-integration/) | GitHub Actions, sharding, test filtering | Running tests in pipelines, deploy previews |
+| [Iframe Handling](./skills/iframe-handling/) | Working with iframes and nested frames | Testing embedded content, payment widgets |
+| [Shadow DOM Handling](./skills/shadow-dom-handling/) | Interacting with web components, filtering shadow elements | Testing custom elements, design systems, component libraries |
+| [Dialog Handling](./skills/dialog-handling/) | Browser alerts, prompts, modals | Handling browser dialogs and modal components |
 
 ## Setup
 
@@ -234,37 +234,6 @@ cp configs/.prettierrc your-project/
 cp configs/playwright.config.ts your-project/
 ```
 
-### 4. Set Up AI Agent Hooks (Optional)
-
-Auto-validate test quality every time an AI agent edits a file. See [hooks/HOOKS-SETUP.md](./hooks/HOOKS-SETUP.md) for full setup instructions.
-
-```bash
-chmod +x hooks/lint-e2e.sh hooks/validate-test.sh
-```
-
-| Hook | What It Does | Supported By |
-|------|-------------|-------------|
-| `lint-e2e.sh` | Runs ESLint after every file edit | Claude Code, Cline, Kiro |
-| `validate-test.sh` | Runs test 5x to catch flakiness | All tools (manual trigger) |
-
-### 5. Add AGENTS.md to Your Project (Optional)
-
-Copy the [AGENTS.md template](./templates/AGENTS.md.template) to your project root. It tells AI agents about your project conventions, folder structure, and coding standards — like a README specifically for AI tools.
-
-```bash
-cp templates/AGENTS.md.template your-project/AGENTS.md
-```
-
-## AI Tool Compatibility
-
-| Feature | Kiro IDE | Claude Code | Roo Code | Cline | Amazon Q |
-|---------|----------|-------------|----------|-------|----------|
-| SKILL.md auto-discovery | ✅ | ✅ | ✅ | ❌ | ❌ |
-| YAML frontmatter | ✅ Required | ✅ Supported | ✅ Required | N/A | N/A |
-| PostToolUse hooks | ✅ | ✅ | ❌ | ✅ | ❌ |
-| AGENTS.md / steering | Steering files | ✅ AGENTS.md | .roo/rules/ | .clinerules/ | Manual |
-| Self-validation scripts | ✅ | ✅ | ✅ | ✅ | ✅ |
-
 ## Documentation Structure
 
 ```
@@ -287,18 +256,13 @@ test-automation-skills/
 │   ├── performance-testing/
 │   ├── error-handling/
 │   ├── debugging-troubleshooting/
-│   ├── test-fixtures-setup/
-│   ├── authentication-testing/
-│   └── ci-cd-integration/
+│   ├── iframe-handling/
+│   ├── shadow-dom-handling/
+│   └── dialog-handling/
 ├── templates/ (copy-paste starters)
 │   ├── prompt-templates/
 │   ├── test-templates/
-│   ├── migration-tracker/
-│   └── AGENTS.md.template
-├── hooks/ (auto-validation scripts)
-│   ├── lint-e2e.sh
-│   ├── validate-test.sh
-│   └── HOOKS-SETUP.md
+│   └── migration-tracker/
 ├── configs/ (ESLint, Prettier, etc.)
 ├── docs/diagrams/ (architecture diagrams)
 └── examples/ (good vs bad code)

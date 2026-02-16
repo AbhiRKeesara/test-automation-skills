@@ -1,9 +1,3 @@
----
-name: action-utilities
-description: >
-  UIActions pattern for centralized Playwright interactions. Use when implementing clean page object interactions, creating reusable action classes for buttons, inputs, dropdowns, checkboxes, or building a centralized interaction gateway.
----
-
 # Action Utilities Skill
 
 A comprehensive guide to implementing centralized action utilities (UIActions pattern) in Playwright for cleaner, more maintainable test automation.
@@ -569,7 +563,7 @@ export class UIElementActions extends BaseAction {
 
 ```typescript
 // actions/PageActions.ts
-import { Page } from '@playwright/test';
+import { Page, Response } from '@playwright/test';
 import { BaseAction } from './BaseAction';
 
 export class PageActions extends BaseAction {
@@ -650,6 +644,92 @@ export class PageActions extends BaseAction {
    */
   async waitForDOMContentLoaded(): Promise<void> {
     await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  /**
+   * Wait for specific API request to be made
+   * Useful for waiting for background API calls triggered by user actions
+   */
+  async waitForRequest(urlPattern: string): Promise<void> {
+    this.log('WaitForRequest', urlPattern);
+    await this.page.waitForRequest(urlPattern);
+  }
+
+  /**
+   * Wait for specific API response with conditions
+   * Returns the response for further validation
+   */
+  async waitForResponse(
+    urlPattern: string | RegExp,
+    options?: { status?: number; timeout?: number }
+  ): Promise<Response> {
+    this.log('WaitForResponse', `pattern: ${urlPattern}, status: ${options?.status}`);
+
+    return this.page.waitForResponse(
+      (response) => {
+        const urlMatches =
+          typeof urlPattern === 'string'
+            ? response.url().includes(urlPattern)
+            : urlPattern.test(response.url());
+
+        const statusMatches = options?.status ? response.status() === options.status : true;
+
+        return urlMatches && statusMatches;
+      },
+      { timeout: options?.timeout }
+    );
+  }
+
+  /**
+   * Wait for successful API response (status 200)
+   */
+  async waitForSuccessResponse(urlPattern: string): Promise<Response> {
+    return this.waitForResponse(urlPattern, { status: 200 });
+  }
+
+  /**
+   * Wait for multiple responses to complete
+   */
+  async waitForMultipleResponses(urlPatterns: string[]): Promise<Response[]> {
+    this.log('WaitForMultipleResponses', `patterns: ${urlPatterns.join(', ')}`);
+
+    const responsePromises = urlPatterns.map((pattern) =>
+      this.page.waitForResponse((response) => response.url().includes(pattern))
+    );
+
+    return Promise.all(responsePromises);
+  }
+
+  /**
+   * Wait for custom condition using waitForFunction
+   * Example: wait for element count, wait for specific DOM state
+   */
+  async waitForCondition(
+    condition: string,
+    options?: { timeout?: number; polling?: number }
+  ): Promise<void> {
+    this.log('WaitForCondition', condition);
+
+    await this.page.waitForFunction(condition, {
+      timeout: options?.timeout ?? this.defaultTimeout,
+      polling: options?.polling ?? 100,
+    });
+  }
+
+  /**
+   * Wait for element to exist in DOM (not necessarily visible)
+   */
+  async waitForSelector(selector: string, timeout?: number): Promise<void> {
+    this.log('WaitForSelector', selector);
+    await this.page.waitForSelector(selector, { timeout });
+  }
+
+  /**
+   * Wait with timeout (use sparingly, prefer specific waits)
+   */
+  async wait(milliseconds: number): Promise<void> {
+    this.log('Wait', `${milliseconds}ms`);
+    await this.page.waitForTimeout(milliseconds);
   }
 
   /**
@@ -933,15 +1013,364 @@ your-project/
 - [ ] Don't put business logic in action classes
 - [ ] Don't create overly specific methods (keep actions generic)
 
+## Advanced Wait Patterns
+
+### Network-Based Waits
+
+#### Wait for API Request Before Proceeding
+
+```typescript
+test('wait for background API call', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/dashboard');
+
+  // Set up request listener before triggering action
+  const requestPromise = ui.pageAction().waitForRequest('api/analytics');
+
+  await ui.button().click(page.getByRole('button', { name: 'Load Data' }));
+
+  // Wait for the API request to be made
+  await requestPromise;
+
+  // Now safe to proceed
+  await expect(page.getByText('Data loaded')).toBeVisible();
+});
+```
+
+#### Wait for API Response with Validation
+
+```typescript
+test('wait for successful API response', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/orders');
+
+  // Wait for specific API response with status code
+  const responsePromise = ui.pageAction().waitForSuccessResponse('api/orders');
+
+  await ui.button().click(page.getByRole('button', { name: 'Refresh' }));
+
+  const response = await responsePromise;
+
+  // Validate response data
+  const data = await response.json();
+  expect(data.orders).toBeDefined();
+});
+```
+
+#### Comprehensive Response Waiting
+
+```typescript
+test('wait for API with custom conditions', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/checkout');
+
+  // Wait for response matching URL pattern and status
+  const responsePromise = ui.pageAction().waitForResponse(/api\/payment/, {
+    status: 200,
+    timeout: 10000,
+  });
+
+  await ui.button().click(page.getByRole('button', { name: 'Pay Now' }));
+
+  const response = await responsePromise;
+  expect(response.ok()).toBeTruthy();
+});
+```
+
+#### Multiple API Responses
+
+```typescript
+test('wait for multiple API calls to complete', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/complex-dashboard');
+
+  // Wait for multiple APIs to complete
+  const responsesPromise = ui.pageAction().waitForMultipleResponses([
+    'api/user-profile',
+    'api/notifications',
+    'api/recent-activity',
+  ]);
+
+  await ui.button().click(page.getByRole('button', { name: 'Load Dashboard' }));
+
+  const responses = await responsesPromise;
+
+  // All responses received
+  expect(responses).toHaveLength(3);
+  responses.forEach((response) => {
+    expect(response.ok()).toBeTruthy();
+  });
+});
+```
+
+### Custom Condition Waits
+
+#### Wait for Element Count
+
+```typescript
+test('wait for specific number of items to load', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/products');
+
+  await ui.button().click(page.getByRole('button', { name: 'Load More' }));
+
+  // Wait until at least 10 products are visible
+  await ui.pageAction().waitForCondition(
+    'document.querySelectorAll(".product-card").length >= 10'
+  );
+
+  const productCards = page.locator('.product-card');
+  expect(await productCards.count()).toBeGreaterThanOrEqual(10);
+});
+```
+
+#### Wait for Dynamic Content
+
+```typescript
+test('wait for dynamic element to appear', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/search');
+
+  await ui.editBox().fill(page.getByLabel('Search'), 'laptop');
+
+  // Wait for autocomplete suggestions to appear
+  await ui.pageAction().waitForCondition(
+    'document.querySelector(".autocomplete-results") !== null'
+  );
+
+  const suggestions = page.locator('.autocomplete-results li');
+  expect(await suggestions.count()).toBeGreaterThan(0);
+});
+```
+
+#### Wait for Attribute Change
+
+```typescript
+test('wait for loading state to complete', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/dashboard');
+
+  await ui.button().click(page.getByRole('button', { name: 'Refresh' }));
+
+  // Wait for loading attribute to be removed
+  await ui.pageAction().waitForCondition(
+    'document.querySelector("[data-loading]") === null',
+    { timeout: 15000 }
+  );
+
+  expect(await page.locator('[data-loading]').count()).toBe(0);
+});
+```
+
+### Load State Waits
+
+#### Network Idle After Action
+
+```typescript
+test('wait for network idle after navigation', async ({ page, ui }) => {
+  await ui.pageAction().navigateAndWait('/heavy-page');
+
+  // Page and all network requests are complete
+  await expect(page.getByText('Page Loaded')).toBeVisible();
+});
+```
+
+#### Explicit Network Idle
+
+```typescript
+test('wait for all network activity to settle', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/dashboard');
+
+  await ui.button().click(page.getByRole('button', { name: 'Load Widgets' }));
+
+  // Wait for all network requests to complete
+  await ui.pageAction().waitForNetworkIdle();
+
+  // Now safe to take measurements or verify content
+  const widgets = page.locator('.widget');
+  expect(await widgets.count()).toBeGreaterThan(0);
+});
+```
+
+#### DOM Content Loaded
+
+```typescript
+test('wait for DOM to be ready', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/fast-page');
+
+  await ui.pageAction().waitForDOMContentLoaded();
+
+  // DOM is parsed, but images/stylesheets might still be loading
+  const heading = page.getByRole('heading', { name: 'Welcome' });
+  await expect(heading).toBeVisible();
+});
+```
+
+### Combining Actions and Waits
+
+#### Click and Wait for Response
+
+```typescript
+test('click button and wait for API call', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/submit-form');
+
+  await ui.editBox().fill(page.getByLabel('Name'), 'John Doe');
+
+  // Set up response listener before clicking
+  const responsePromise = ui.pageAction().waitForSuccessResponse('api/submit');
+
+  await ui.button().click(page.getByRole('button', { name: 'Submit' }));
+
+  const response = await responsePromise;
+  const data = await response.json();
+
+  expect(data.success).toBe(true);
+});
+```
+
+#### Fill Form and Wait for Validation API
+
+```typescript
+test('validate email with API call', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/registration');
+
+  // Set up listener before typing
+  const validationPromise = ui.pageAction().waitForResponse('api/validate-email');
+
+  await ui.editBox().type(page.getByLabel('Email'), 'user@example.com');
+
+  const response = await validationPromise;
+  expect(response.status()).toBe(200);
+
+  await expect(page.getByText('Email is available')).toBeVisible();
+});
+```
+
+### Real-World Wait Scenarios
+
+#### E-commerce Checkout Flow
+
+```typescript
+test('complete checkout with multiple wait points', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/checkout');
+
+  // Step 1: Fill shipping info and wait for validation
+  await ui.editBox().fill(page.getByLabel('Address'), '123 Main St');
+  await ui.editBox().fill(page.getByLabel('Zip Code'), '12345');
+
+  const validationPromise = ui.pageAction().waitForSuccessResponse('api/validate-address');
+  await ui.button().click(page.getByRole('button', { name: 'Continue' }));
+  await validationPromise;
+
+  // Step 2: Fill payment and wait for payment processor
+  await ui.editBox().fill(page.getByLabel('Card Number'), '4242424242424242');
+
+  const paymentPromise = ui.pageAction().waitForResponse(/payment-gateway/);
+  await ui.button().click(page.getByRole('button', { name: 'Place Order' }));
+  await paymentPromise;
+
+  // Step 3: Wait for confirmation page to load
+  await ui.pageAction().waitForNetworkIdle();
+
+  await expect(page.getByText('Order Confirmed')).toBeVisible();
+});
+```
+
+#### Dynamic Dashboard Loading
+
+```typescript
+test('wait for dashboard components to fully load', async ({ page, ui }) => {
+  await ui.pageAction().navigate('/dashboard');
+
+  // Wait for initial page load
+  await ui.pageAction().waitForLoad();
+
+  // Wait for all widget APIs to complete
+  await ui.pageAction().waitForMultipleResponses([
+    'api/sales-data',
+    'api/customer-data',
+    'api/inventory-data',
+  ]);
+
+  // Wait for network to be idle
+  await ui.pageAction().waitForNetworkIdle();
+
+  // Wait for specific chart to render
+  await ui.pageAction().waitForCondition(
+    'document.querySelector("canvas.sales-chart") !== null'
+  );
+
+  // Dashboard is fully loaded
+  const charts = page.locator('canvas.chart');
+  expect(await charts.count()).toBe(3);
+});
+```
+
+## Best Practices for Wait Patterns
+
+### ✅ Do's
+
+1. **Use specific waits over generic timeouts**
+   ```typescript
+   // Good
+   await ui.pageAction().waitForSuccessResponse('api/data');
+
+   // Bad
+   await ui.pageAction().wait(3000);
+   ```
+
+2. **Wait for network responses when testing async features**
+   ```typescript
+   const responsePromise = ui.pageAction().waitForResponse('api/search');
+   await ui.editBox().type(searchInput, 'query');
+   await responsePromise;
+   ```
+
+3. **Combine waits with actions appropriately**
+   ```typescript
+   // Set up listener before triggering action
+   const responsePromise = ui.pageAction().waitForRequest('analytics');
+   await ui.button().click(submitButton);
+   await responsePromise;
+   ```
+
+### ❌ Don'ts
+
+1. **Don't use arbitrary timeouts**
+   ```typescript
+   // Bad
+   await page.waitForTimeout(5000);
+
+   // Good
+   await ui.pageAction().waitForNetworkIdle();
+   ```
+
+2. **Don't wait for conditions that never happen**
+   ```typescript
+   // Ensure your wait conditions are actually achievable
+   await ui.pageAction().waitForCondition(
+     'document.querySelector(".never-appears") !== null',
+     { timeout: 30000 } // Will always timeout
+   );
+   ```
+
+3. **Don't forget to set up listeners before triggering actions**
+   ```typescript
+   // Bad - race condition
+   await ui.button().click(loadButton);
+   await ui.pageAction().waitForResponse('api/data'); // Might miss it
+
+   // Good
+   const responsePromise = ui.pageAction().waitForResponse('api/data');
+   await ui.button().click(loadButton);
+   await responsePromise;
+   ```
+
 ## Rules for Page Objects (When Using UIActions)
 
 1. **Never write raw Playwright code** - No `page.locator()`, `locator.click()`, `expect()` in Page Objects
 2. **Never write inline selectors** - Define all locators as class properties
 3. **Never hardcode values** - Use parameters or test data
 4. **All interactions through UIActions** - No exceptions
+5. **Use appropriate wait patterns** - Choose specific waits over generic timeouts
 
 ## Related Resources
 
 - [Page Object Model](../page-object-model/SKILL.md)
 - [Assertion Utilities](../assertion-utilities/SKILL.md)
 - [Playwright Best Practices](../playwright-best-practices/SKILL.md)
+- [Dialog Handling](../dialog-handling/SKILL.md)
+- [Iframe Handling](../iframe-handling/SKILL.md)
